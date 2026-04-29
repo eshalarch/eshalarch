@@ -3,42 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Coin | Secure Investment</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Eshal Arch | Professional Login</title>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDN9MF8w3EzQmObXv-C8twMXxwcOsBHT7E",
+            authDomain: "smart-coin-2f55e.firebaseapp.com",
+            projectId: "smart-coin-2f55e",
+            storageBucket: "smart-coin-2f55e.firebasestorage.app",
+            messagingSenderId: "43438079124",
+            appId: "1:43438079124:web:fa572b0c06d7f6a1190881"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        /* ========================== LOGIN JS START ========================== */
+        window.handleLogin = async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                if(userCredential.user.emailVerified) {
+                    alert("Welcome to Eshal Arch!");
+                    window.location.href = "home.html";
+                } else {
+                    alert("Please verify your email first! Check your inbox.");
+                }
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+        };
+
+        window.handleSignUp = async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                await sendEmailVerification(userCredential.user);
+                alert("Verification Link Sent! Please check your email to verify your account.");
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+        };
+
+        window.handleForgotPass = async () => {
+            const email = document.getElementById('email').value;
+            if(!email) return alert("Please enter email first");
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("Password reset link sent to your email!");
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+        };
+        /* ========================== LOGIN JS END ========================== */
+    </script>
+
     <style>
-        body { background-color: #0f172a; color: white; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        /* ========================== LOGIN CSS START ========================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        
+        body {
+            background: #0f0f0f; /* Luxury Dark Theme */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .login-container {
+            background: #1a1a1a;
+            padding: 50px;
+            border-radius: 2px;
+            border-left: 5px solid #c5a059; /* Architect Gold Accent */
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #fff;
+            letter-spacing: 5px;
+            font-weight: 300;
+            margin-bottom: 30px;
+        }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        
+        label { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #252525;
+            border: 1px solid #333;
+            color: #fff;
+            margin-top: 5px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: #c5a059; }
+
+        .btn-gold {
+            width: 100%;
+            padding: 15px;
+            background: #c5a059;
+            color: #000;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-gold:hover { background: #e2ba71; }
+
+        .links { margin-top: 20px; display: flex; justify-content: space-between; }
+        
+        .links a {
+            color: #666;
+            font-size: 12px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .links a:hover { color: #c5a059; }
+
+        .signup-text { color: #888; font-size: 13px; margin-top: 30px; }
+        .signup-text span { color: #c5a059; cursor: pointer; }
+        /* ========================== LOGIN CSS END ========================== */
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
-    <div id="auth-container" class="glass p-8 rounded-2xl w-full max-w-md shadow-2xl">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-blue-400">SMART COIN</h1>
-            <p class="text-gray-400 text-sm">Invest Smart, Earn Daily</p>
+<body>
+
+    <div class="login-container">
+        <h1>ESHAL ARCH</h1>
+        
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="email@example.com">
         </div>
 
-        <div id="login-form">
-            <input type="email" id="login-email" placeholder="Email Address" class="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-700 outline-none">
-            <input type="password" id="login-password" placeholder="Password" class="w-full p-3 mb-6 rounded bg-gray-800 border border-gray-700 outline-none">
-            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded font-bold transition">Login</button>
-            <p class="mt-4 text-center text-sm">Don't have an account? <a href="#" onclick="toggleAuth()" class="text-blue-400">Signup</a></p>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="••••••••">
         </div>
 
-        <div id="signup-form" class="hidden">
-            <input type="text" id="user-name" placeholder="Full Name" class="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-700 outline-none">
-            <input type="email" id="signup-email" placeholder="Email Address" class="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-700 outline-none">
-            <input type="password" id="signup-password" placeholder="Password" class="w-full p-3 mb-6 rounded bg-gray-800 border border-gray-700 outline-none">
-            <button onclick="register()" class="w-full bg-green-600 hover:bg-green-700 p-3 rounded font-bold transition">Create Account</button>
-            <p class="mt-4 text-center text-sm">Already have an account? <a href="#" onclick="toggleAuth()" class="text-blue-400">Login</a></p>
+        <button class="btn-gold" onclick="handleLogin()">ENTER STUDIO</button>
+
+        <div class="links">
+            <a href="#" onclick="handleForgotPass()">FORGOT PASSWORD?</a>
         </div>
+
+        <p class="signup-text">
+            Don't have access? <span onclick="handleSignUp()">REGISTER ACCOUNT</span>
+        </p>
     </div>
-
-    <script type="module" src="app.js"></script>
-    <script>
-        function toggleAuth() {
-            document.getElementById('login-form').classList.toggle('hidden');
-            document.getElementById('signup-form').classList.toggle('hidden');
-        }
-    </script>
-</body>
+    </body>
 </html>
