@@ -1,0 +1,17 @@
+{
+  "short_name": "YourAppName",
+  "name": "Your App Name",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "display": "standalone",
+  "orientation": "portrait"
+}
