@@ -2,18 +2,14 @@ import React, { useState } from 'react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true); // Default Dark Mode
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
-    // Pure React project mein theme badalne ke liye html class badal rahe hain
     if (isDarkMode) {
       document.documentElement.classList.add('light-theme');
-      // Agar tum Tailwind ka standard dark mode use kar rahe ho toh:
-      document.documentElement.classList.remove('dark');
     } else {
       document.documentElement.classList.remove('light-theme');
-      document.documentElement.classList.add('dark');
     }
   };
 
@@ -31,16 +27,15 @@ export default function Header() {
           <span className="w-6 h-0.5 bg-[#78281f] group-hover:w-4 transition-all"></span>
         </button>
 
-        {/* Option Button ke andar ka Dropdown Menu */}
+        {/* Dropdown Menu */}
         {isMenuOpen && (
-          <div className="absolute left-0 mt-3 w-48 bg-[#111115] border border-zinc-800 rounded-xl shadow-2xl p-2 animate-fade-in z-50">
+          <div className="absolute left-0 mt-3 w-48 bg-[#111115] border border-zinc-800 rounded-xl shadow-2xl p-2 z-50">
             <p className="text-[10px] font-bold text-zinc-500 tracking-widest px-3 py-1 uppercase">Preferences</p>
             
-            {/* Dark / Light Mode Toggle Button */}
             <button 
               onClick={() => {
                 toggleTheme();
-                setIsMenuOpen(false); // Mode change karke menu band
+                setIsMenuOpen(false);
               }}
               className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold text-zinc-200 hover:bg-zinc-900 hover:text-white transition-all"
             >
@@ -51,7 +46,7 @@ export default function Header() {
         )}
       </div>
 
-      {/* Right Side: AKVAI Real Logo */}
+      {/* Right Side: AKVAI Logo */}
       <div className="flex items-center h-full py-2">
         <img 
           src="/logo.png" 
