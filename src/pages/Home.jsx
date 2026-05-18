@@ -7,10 +7,10 @@ export default function Home({ isDarkMode }) {
   ];
 
   return (
-    <div className="px-4 py-24 min-h-screen transition-colors duration-300">
+    <div className="px-4 py-24 min-h-screen">
       
       <div className="text-center mb-16">
-        <h1 className={`text-3xl font-extrabold tracking-tight mb-3 ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
+        <h1 className={`text-3xl font-extrabold tracking-tight mb-3 ${isDarkMode ? 'text-white' : 'text-black'}`}>
           ARCHITECTS & ENGINEERS
         </h1>
         <p className={`text-sm max-w-md mx-auto ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
@@ -19,7 +19,7 @@ export default function Home({ isDarkMode }) {
       </div>
 
       <div className="border-l-4 border-[#148346] pl-3 mb-8">
-        <h2 className={`text-xl font-bold tracking-wide ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
+        <h2 className={`text-xl font-bold tracking-wide ${isDarkMode ? 'text-white' : 'text-black'}`}>
           FEATURED PORTFOLIO
         </h2>
       </div>
@@ -32,20 +32,20 @@ export default function Home({ isDarkMode }) {
               ${isDarkMode ? 'bg-[#121214] border-zinc-800' : 'bg-white border-zinc-200'}`}
           >
             <div className="h-48 w-full bg-zinc-800 relative overflow-hidden">
-              <img src={item.img} alt={item.title} className="w-full h-full object-cover opacity-90" />
+              <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
               <span className="absolute top-3 right-3 bg-[#c85a32] text-white text-[9px] font-mono font-bold tracking-widest px-2.5 py-1 rounded-md uppercase">
                 {item.tag}
               </span>
             </div>
 
-            {/* CARD BOTTOM INFO SLOT - HARD RESISTANCE FIX */}
+            {/* STRICT OPPOSITE LOGIC: IF BLACK BG -> TEXT WHITE | IF WHITE BG -> TEXT BLACK */}
             <div className="p-5">
               <h3 className={`text-base font-bold tracking-wide transition-colors duration-300
-                ${isDarkMode ? 'text-zinc-100' : 'text-zinc-900'}`}>
+                ${isDarkMode ? 'text-white' : 'text-black'}`}>
                 {item.title}
               </h3>
               <p className={`text-xs mt-1 font-medium transition-colors duration-300
-                ${isDarkMode ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
                 📍 {item.location}, Gujarat
               </p>
             </div>
