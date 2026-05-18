@@ -2,46 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* GLOBAL BODY STYLES */
 body {
   margin: 0;
-  background-color: #0f172a;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
-/* 1. Yeh lines pehle se hongi, inhein BILKUL MAT CHHEDNA */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-/* Agar pehle se tumhaara koi aur CSS code hai toh use bhi rehne do... */
-
-
-/* 2. ISKE NEECHE MERA NAYA CODE PASTE KAR DO */
-
-/* Light Theme overrides (Jab html par .dark nahi hoga) */
+/* ============================================== */
+/* 1. JAB LIGHT MODE HONA CHAHIYE (No .dark class) */
+/* ============================================== */
 html:not(.dark) body {
   background-color: #ffffff !important;
   color: #111111 !important;
 }
 
-html:not(.dark) #services-title {
-  color: #111111 !important;
-}
-
-html:not(.dark) [id^="card-grid-"], html:not(.dark) [id^="card-list-"] {
-  background: #f8f9fa !important;
-  border-color: #e2e8f0 !important;
-  color: #111111 !important;
-}
-
-html:not(.dark) h3 {
-  color: #111111 !important;
+html:not(.dark) h3, 
+html:not(.dark) h1, 
+html:not(.dark) h2 {
+  color: #111111 !important; /* Strict Black in Light Mode */
 }
 
 html:not(.dark) p {
-  color: #4a5568 !important;
+  color: #4a5568 !important; /* Dark Grey for descriptions */
 }
 
-html:not(.dark) #toggle-view-btn {
-  background-color: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
-  color: #334155 !important;
+
+/* ============================================== */
+/* 2. JAB DARK MODE HONA CHAHIYE (With .dark class) */
+/* ============================================== */
+html.dark body {
+  background-color: #0f172a !important; /* Strict Slate/Black Background */
+  color: #ffffff !important;
+}
+
+html.dark h3, 
+html.dark h1, 
+html.dark h2 {
+  color: #ffffff !important; /* Strict White in Dark Mode - TAKI OPPOSITE DIKHE! */
+}
+
+html.dark p {
+  color: #cbd5e1 !important; /* Light Grey for descriptions */
 }
