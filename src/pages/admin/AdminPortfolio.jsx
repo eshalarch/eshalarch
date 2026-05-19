@@ -1,66 +1,74 @@
 import React, { useState } from 'react';
 import { supabase } from '../../utils/supabase';
 
-export default function AdminPortfolio({ isDarkMode, projectsData, refreshData }) {
+export default function AdminPortfolio({ isDarkMode, projectsData = [], refreshData }) {
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [tag, setTag] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Architect Core Style Logic
   const handleAddProject = async () => {
-    if (!title || !location) return;
+    if (!title || !location) return alert("Title aur Location bhar bhai!");
+    setLoading(true);
     
     const { error } = await supabase
       .from('projects')
       .insert([{ title, location, tag }]);
 
     if (error) {
-      console.error("Architect Core Error:", error.message);
+      console.error("Error:", error.message);
     } else {
       setTitle(''); setLocation(''); setTag('');
-      refreshData();
+      if (refreshData) await refreshData();
     }
+    setLoading(false);
   };
 
   return (
-    <div className={`min-h-screen p-8 transition-colors ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-extrabold tracking-tighter mb-8 border-b pb-4">ADMIN PANEL</h1>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-white">
+      {/* FORM CARD - Same as AdminServices */}
+      <div className={`p-6 border rounded-2xl shadow-xl h-fit ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200 text-black'}`}>
+        <h2 className="text-sm font-bold tracking-widest mb-4 text-[#c85a32] uppercase">➕ ADD NEW PROJECT</h2>
         
-        {/* Architect Core Input Boxes */}
-        <div className="space-y-4 mb-12">
+        <div className="flex flex-col gap-4">
           <input 
-            className="w-full p-4 border border-gray-700 bg-transparent focus:outline-none"
+            className={`w-full border rounded-xl px-4 py-2.5 text-xs focus:outline-none ${isDarkMode ? 'bg-black border-zinc-800 text-white' : 'bg-zinc-50 border-zinc-300'}`}
             placeholder="PROJECT TITLE" 
             value={title} 
             onChange={(e) => setTitle(e.target.value)} 
           />
           <input 
-            className="w-full p-4 border border-gray-700 bg-transparent focus:outline-none"
+            className={`w-full border rounded-xl px-4 py-2.5 text-xs focus:outline-none ${isDarkMode ? 'bg-black border-zinc-800 text-white' : 'bg-zinc-50 border-zinc-300'}`}
             placeholder="LOCATION" 
             value={location} 
             onChange={(e) => setLocation(e.target.value)} 
           />
           <input 
-            className="w-full p-4 border border-gray-700 bg-transparent focus:outline-none"
-            placeholder="TAG" 
+            className={`w-full border rounded-xl px-4 py-2.5 text-xs focus:outline-none ${isDarkMode ? 'bg-black border-zinc-800 text-white' : 'bg-zinc-50 border-zinc-300'}`}
+            placeholder="TAG (e.g. Residential)" 
             value={tag} 
             onChange={(e) => setTag(e.target.value)} 
           />
           <button 
             onClick={handleAddProject}
-            className="w-full py-4 bg-white text-black font-bold uppercase hover:opacity-80 transition-opacity"
+            disabled={loading}
+            className="w-full py-3 bg-[#c85a32] text-white text-xs font-bold rounded-xl active:scale-95 transition-all"
           >
-            Submit Project
+            {loading ? 'ADDING...' : 'SUBMIT PROJECT'}
           </button>
         </div>
+      </div>
 
-        {/* Existing Data Grid */}
-        <div className="grid gap-6">
-          {projectsData.map((project) => (
-            <div key={project.id} className="border-l-4 border-white pl-4 py-2">
-              <h3 className="text-xl font-bold">{project.title}</h3>
-              <p className="opacity-60">{project.location} • {project.tag}</p>
+      {/* LIST CARD - Same as AdminServices */}
+      <div className="lg:col-span-2 p-6 border rounded-2xl shadow-xl h-fit bg-transparent">
+        <h2 className="text-sm font-bold tracking-widest mb-4 text-[#c85a32]">📂 CURRENT PORTFOLIO ({(projectsData || []).length})</h2>
+        <div className="flex flex-col gap-3">
+          {(projectsData || []).map((project) => (
+            <div key={project.id || Math.random()} className={`p-4 border rounded-xl flex items-center justify-between ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200 text-black'}`}>
+              <div>
+                <h4 className="text-xs font-bold">{project.title}</h4>
+                <p className="text-[11px] text-zinc-500 mt-1">{project.location} • {project.tag}</p>
+              </div>
             </div>
           ))}
         </div>
