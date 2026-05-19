@@ -16,12 +16,13 @@ export default function App() {
   const [user, setUser] = useState(null); 
   const [currentHash, setCurrentHash] = useState(window.location.hash);
 
-  useEffect(() => {
-    const handleHashChange = () => setCurrentHash(window.location.hash);
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  // 1. DYNAMIC PORTFOLIO PROJECTS STATE (Admin se fully control hone ke liye template database array)
+  const [projectsData, setProjectsData] = useState([
+    { id: 1, title: 'Modern Villa Project', location: 'Ahmedabad', tag: '3D Elevation', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&auto=format&fit=crop&q=60' },
+    { id: 2, title: 'Commercial Complex Blueprint', location: 'Gandhinagar', tag: '2D Layout', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&auto=format&fit=crop&q=60' }
+  ]);
 
+  // 2. DYNAMIC SERVICES STATE (Admin se control hone ke liye original array)
   const [servicesData, setServicesData] = useState([
     { id: '01', title: '2D Layout Plan', desc: 'Precision-engineered blueprints mapping architectural space configurations down to the millimeter.', color: 'border-[#148346]/40', numColor: 'text-[#148346]', formHeading: 'Request 2D Layout Blueprint Specifications', formPlaceholder: 'Enter your plot size...' },
     { id: '02', title: '3D Elevation', desc: 'High-end photorealistic external structures and interior renders visualizing forms before ground-breaking.', color: 'border-[#c85a32]/40', numColor: 'text-[#c85a32]', formHeading: 'Consultation for 3D External & Interior Renderings', formPlaceholder: 'Upload your rough sketch...' }
@@ -29,6 +30,12 @@ export default function App() {
 
   const [openServicePageId, setOpenServicePageId] = useState(null);
   const isUrlAdminRoute = currentHash === '#admin';
+
+  useEffect(() => {
+    const handleHashChange = () => setCurrentHash(window.location.hash);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const handleAdminLoginSubmit = (e) => {
     e.preventDefault();
@@ -40,7 +47,7 @@ export default function App() {
     }
   };
 
-  // Central Locking Gates for Buttons
+  // Central Access Guard Logic for Dynamic Buttons
   const requireAuth = (successAction) => {
     if (!user) {
       setActiveTab('auth');
@@ -62,7 +69,7 @@ export default function App() {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-[#f8f9fa] text-zinc-900'}`}>
       
-      {/* FIXED HEADER: Now strictly takes setActiveTab */}
+      {/* FIXED HEADER */}
       <Header 
         isDarkMode={isDarkMode} 
         setIsDarkMode={setIsDarkMode} 
@@ -92,12 +99,37 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <Admin isDarkMode={isDarkMode} servicesData={servicesData} setServicesData={setServicesData} />
+            /* ADMIN PANEL: Portfolio aur Services dono ka states array pass kiya taaki edit/add work kare */
+            <Admin 
+              isDarkMode={isDarkMode} 
+              servicesData={servicesData} 
+              setServicesData={setServicesData} 
+              projectsData={projectsData}
+              setProjectsData={setProjectsData}
+            />
           )
         ) : (
           <>
-            {activeTab === 'home' && <Home isDarkMode={isDarkMode} requireAuth={requireAuth} />}
-            {activeTab === 'services' && <Services isDarkMode={isDarkMode} servicesData={servicesData} openServicePageId={openServicePageId} setOpenServicePageId={setOpenServicePageId} requireAuth={requireAuth} />}
+            {/* HOME TABS: Dynamic projects pass kiye */}
+            {activeTab === 'home' && (
+              <Home 
+                isDarkMode={isDarkMode} 
+                requireAuth={requireAuth} 
+                projectsData={projectsData} 
+              />
+            )}
+
+            {/* SERVICES TABS */}
+            {activeTab === 'services' && (
+              <Services 
+                isDarkMode={isDarkMode} 
+                servicesData={servicesData} 
+                openServicePageId={openServicePageId} 
+                setOpenServicePageId={setOpenServicePageId} 
+                requireAuth={requireAuth} 
+              />
+            )}
+
             {activeTab === 'site' && <SiteVisit isDarkMode={isDarkMode} requireAuth={requireAuth} />}
             {activeTab === 'status' && <OrderStatus isDarkMode={isDarkMode} requireAuth={requireAuth} />}
             {activeTab === 'auth' && <Auth isDarkMode={isDarkMode} onLoginSuccess={handleLoginSuccess} setActiveTab={setActiveTab} />}
