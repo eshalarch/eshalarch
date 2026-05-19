@@ -3,13 +3,16 @@ import React, { useState } from 'react';
 const SUPABASE_URL = 'https://rkxwxkzqytzaajgrmloz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_8vd5uZd2ivCwTEtkcdaj9g_EpSnevVC';
 
-export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsData, refreshData }) {
+export default function AdminPortfolio({ isDarkMode, projectsData = [], setProjectsData, refreshData }) {
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [tag, setTag] = useState('3D Elevation');
   const [img, setImg] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // SAFE CHECK: Agar projectsData array nahi hai toh khali array bna do taaki crash na ho
+  const safeProjects = Array.isArray(projectsData) ? projectsData : [];
 
   const headers = {
     'apikey': SUPABASE_ANON_KEY,
@@ -24,35 +27,31 @@ export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsDa
     setLoading(true);
 
     try {
-      let response;
       if (editingId) {
-        // 🔄 UPDATE LOGIC (PATCH)
-        response = await fetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${editingId}`, {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${editingId}`, {
           method: 'PATCH',
           headers,
           body: JSON.stringify({ title, location, tag, img })
         });
         if (response.ok) {
-          alert("Project details synced instantly! ⚡");
+          alert("Project updated successfully! ⚡");
           setEditingId(null);
         }
       } else {
-        // ➕ INSERT LOGIC (POST)
-        response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ title, location, tag, img })
         });
-        if (response.ok) alert("New project pushed to Supabase live! 📁");
+        if (response.ok) alert("New project pushed to database! 📁");
       }
 
-      // Reset fields instantly and pull latest from DB
       setTitle(''); setLocation(''); setImg('');
-      if (refreshData) await refreshData(); 
+      if (refreshData) await refreshData();
 
     } catch (err) {
-      console.error("Link Transfer Error:", err);
-      alert("Database update crashed! Link check kar.");
+      console.error(err);
+      alert("Database transfer crashed!");
     } finally {
       setLoading(false);
     }
@@ -60,10 +59,10 @@ export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsDa
 
   const startEdit = (project) => {
     setEditingId(project.id);
-    setTitle(project.title);
-    setLocation(project.location);
-    setTag(project.tag);
-    setImg(project.img);
+    setTitle(project.title || '');
+    setLocation(project.location || '');
+    setTag(project.tag || '3D Elevation');
+    setImg(project.img || '');
   };
 
   const deleteProject = async (id) => {
@@ -76,25 +75,22 @@ export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsDa
         headers
       });
       if (response.ok) {
-        alert("Project permanently deleted!");
-        if (refreshData) await refreshData(); 
-      } else {
-        alert("Delete failed, try again.");
+        alert("Project deleted!");
+        if (refreshData) await refreshData();
       }
     } catch (err) {
-      console.error("Purge Error:", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      {/* FORM CORE */}
-      <div className={`p-6 border rounded-2xl shadow-xl h-fit ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-white">
+      {/* FORM CARD */}
+      <div className={`p-6 border rounded-2xl shadow-xl h-fit ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200 text-black'}`}>
         <h2 className="text-sm font-bold tracking-widest mb-4 text-[#c85a32] uppercase">
-          {editingId ? '⚡ EDIT PROJECT BLUEPRINT' : '➕ CREATE NEW PROJECT'}
+          {editingId ? '⚡ EDIT PROJECT' : '➕ CREATE NEW PROJECT'}
         </h2>
         
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -107,7 +103,7 @@ export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsDa
             <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Ahmedabad" className={`w-full border rounded-xl px-4 py-2.5 text-xs focus:outline-none ${isDarkMode ? 'bg-black border-zinc-800 text-white' : 'bg-zinc-50 border-zinc-300'}`} />
           </div>
           <div>
-            <label className="text-[10px] font-mono tracking-wider text-zinc-500 block mb-1">RENDERING TAG</label>
+            <label className="text-[10px] font-mono tracking-wider text-zinc-500 block mb-1">TAG</label>
             <select value={tag} onChange={(e) => setTag(e.target.value)} className={`w-full border rounded-xl px-4 py-2.5 text-xs focus:outline-none ${isDarkMode ? 'bg-black border-zinc-800 text-white' : 'bg-zinc-50 border-zinc-300'}`}>
               <option value="3D Elevation">3D Elevation</option>
               <option value="2D Layout">2D Layout</option>
@@ -119,44 +115,37 @@ export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsDa
             <input type="text" value={img} onChange={(e) => setImg(e.target.value)} placeholder="Paste link..." className={`w-full border rounded-xl px-4 py-2.5 text-xs focus:outline-none ${isDarkMode ? 'bg-black border-zinc-800 text-white' : 'bg-zinc-50 border-zinc-300'}`} />
           </div>
 
-          <button type="submit" disabled={loading} className="w-full py-3 bg-[#c85a32] text-white text-xs font-bold rounded-xl active:scale-95 transition-all uppercase tracking-widest disabled:opacity-50">
-            {loading ? 'Processing DB...' : (editingId ? 'Update Asset' : 'Push to Site')}
+          <button type="submit" disabled={loading} className="w-full py-3 bg-[#c85a32] text-white text-xs font-bold rounded-xl active:scale-95 transition-all uppercase tracking-widest">
+            {loading ? 'Processing...' : (editingId ? 'Update' : 'Push Live')}
           </button>
-          
-          {editingId && (
-            <button type="button" onClick={() => { setEditingId(null); setTitle(''); setLocation(''); setImg(''); }} className="w-full py-2 bg-zinc-600 text-white text-xs font-bold rounded-xl">
-              Cancel
-            </button>
-          )}
         </form>
       </div>
 
       {/* INDEX LIST */}
       <div className="lg:col-span-2 p-6 border rounded-2xl shadow-xl h-fit bg-transparent">
-        <h2 className="text-sm font-bold tracking-widest mb-4 text-[#148346]">📁 LIVE PORTFOLIO INDEX ({projectsData.length})</h2>
+        <h2 className="text-sm font-bold tracking-widest mb-4 text-[#148346]">📁 LIVE PORTFOLIO INDEX ({safeProjects.length})</h2>
         <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto">
-          {projectsData.length === 0 ? (
-            <div className="text-xs font-mono text-zinc-500 py-4">No data found in Supabase table.</div>
+          {safeProjects.length === 0 ? (
+            <div className="text-xs font-mono text-zinc-500 py-4">Database table is currently empty. Add your first project!</div>
           ) : (
-            projectsData.map((project) => (
-              <div key={project.id} className={`flex items-center justify-between p-3 border rounded-xl ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
+            safeProjects.map((project) => (
+              <div key={project.id} className={`flex items-center justify-between p-3 border rounded-xl ${isDarkMode ? 'bg-[#111115] border-zinc-800 text-white' : 'bg-white border-zinc-200 text-black'}`}>
                 <div className="flex items-center gap-3 min-w-0">
-                  <img src={project.img} alt="" className="w-12 h-12 object-cover rounded-lg bg-zinc-800 flex-shrink-0" />
+                  <img src={project.img} alt="" className="w-12 h-12 object-cover rounded-lg bg-zinc-800" />
                   <div className="min-w-0">
                     <h4 className="text-xs font-bold truncate">{project.title}</h4>
                     <p className="text-[10px] text-zinc-500">📍 {project.location} | <span className="text-[#c85a32]">{project.tag}</span></p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <button onClick={() => startEdit(project)} className="px-2.5 py-1.5 bg-zinc-500/10 text-[10px] font-bold rounded-lg text-zinc-400 hover:text-white">EDIT</button>
-                  <button onClick={() => deleteProject(project.id)} className="px-2.5 py-1.5 bg-red-600/10 text-[10px] font-bold rounded-lg text-red-500 hover:bg-red-600 hover:text-white">DEL</button>
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => startEdit(project)} className="px-2.5 py-1.5 bg-zinc-500/10 text-[10px] font-bold rounded-lg text-zinc-400">EDIT</button>
+                  <button onClick={() => deleteProject(project.id)} className="px-2.5 py-1.5 bg-red-600/10 text-[10px] font-bold rounded-lg text-red-500">DEL</button>
                 </div>
               </div>
             ))
           )}
         </div>
       </div>
-
     </div>
   );
 }
