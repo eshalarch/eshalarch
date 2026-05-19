@@ -1,66 +1,70 @@
 import React, { useState } from 'react';
+import { supabase } from '../../utils/supabase';
 
-const SUPABASE_URL = 'https://rkxwxkzqytzaajgrmloz.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_8vd5uZd2ivCwTEtkcdaj9g_EpSnevVC';
-
-export default function AdminPortfolio({ isDarkMode, projectsData = [], refreshData }) {
+export default function AdminPortfolio({ isDarkMode, projectsData, refreshData }) {
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
-  const [tag, setTag] = useState('3D Elevation');
-  const [img, setImg] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [tag, setTag] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!title || !location || !img) return alert("Bhai, saari details bhar!");
+  // Architect Core Style Logic
+  const handleAddProject = async () => {
+    if (!title || !location) return;
     
-    setLoading(true);
+    const { error } = await supabase
+      .from('projects')
+      .insert([{ title, location, tag }]);
 
-    try {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        // Ab hum id nahi bhej rahe, database khud generate karega
-        body: JSON.stringify({ title, location, tag, img })
-      });
-
-      if (response.ok) {
-        alert("Project Live ho gaya! ⚡");
-        setTitle(''); setLocation(''); setImg('');
-        if (refreshData) await refreshData();
-      } else {
-        const err = await response.json();
-        alert("Error: " + err.message);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Network Error!");
-    } finally {
-      setLoading(false);
+    if (error) {
+      console.error("Architect Core Error:", error.message);
+    } else {
+      setTitle(''); setLocation(''); setTag('');
+      refreshData();
     }
   };
 
   return (
-    <div className={`p-6 border rounded-2xl ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
-      <h2 className="text-sm font-bold mb-4 text-[#c85a32]">ADD NEW PROJECT</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input type="text" placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} className="w-full p-2 border rounded bg-transparent" />
-        <input type="text" placeholder="Location" value={location} onChange={e => setLocation(e.target.value)} className="w-full p-2 border rounded bg-transparent" />
-        <select value={tag} onChange={e => setTag(e.target.value)} className="w-full p-2 border rounded bg-transparent">
-          <option>3D Elevation</option>
-          <option>2D Layout</option>
-          <option>Interior View</option>
-        </select>
-        <input type="text" placeholder="Image URL" value={img} onChange={e => setImg(e.target.value)} className="w-full p-2 border rounded bg-transparent" />
-        <button type="submit" className="bg-[#c85a32] p-2 rounded text-white font-bold">
-          {loading ? 'Pushed...' : 'PUSH LIVE'}
-        </button>
-      </form>
+    <div className={`min-h-screen p-8 transition-colors ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-3xl font-extrabold tracking-tighter mb-8 border-b pb-4">ADMIN PANEL</h1>
+        
+        {/* Architect Core Input Boxes */}
+        <div className="space-y-4 mb-12">
+          <input 
+            className="w-full p-4 border border-gray-700 bg-transparent focus:outline-none"
+            placeholder="PROJECT TITLE" 
+            value={title} 
+            onChange={(e) => setTitle(e.target.value)} 
+          />
+          <input 
+            className="w-full p-4 border border-gray-700 bg-transparent focus:outline-none"
+            placeholder="LOCATION" 
+            value={location} 
+            onChange={(e) => setLocation(e.target.value)} 
+          />
+          <input 
+            className="w-full p-4 border border-gray-700 bg-transparent focus:outline-none"
+            placeholder="TAG" 
+            value={tag} 
+            onChange={(e) => setTag(e.target.value)} 
+          />
+          <button 
+            onClick={handleAddProject}
+            className="w-full py-4 bg-white text-black font-bold uppercase hover:opacity-80 transition-opacity"
+          >
+            Submit Project
+          </button>
+        </div>
+
+        {/* Existing Data Grid */}
+        <div className="grid gap-6">
+          {projectsData.map((project) => (
+            <div key={project.id} className="border-l-4 border-white pl-4 py-2">
+              <h3 className="text-xl font-bold">{project.title}</h3>
+              <p className="opacity-60">{project.location} • {project.tag}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
