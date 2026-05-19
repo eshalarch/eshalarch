@@ -24,34 +24,35 @@ export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsDa
     setLoading(true);
 
     try {
+      let response;
       if (editingId) {
-        // 🔄 UPDATE (PATCH) LOGIC FOR SUPABASE
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${editingId}`, {
+        // 🔄 UPDATE LOGIC (PATCH)
+        response = await fetch(`${SUPABASE_URL}/rest/v1/projects?id=eq.${editingId}`, {
           method: 'PATCH',
           headers,
           body: JSON.stringify({ title, location, tag, img })
         });
         if (response.ok) {
-          alert("Project updated in Supabase! ⚡");
+          alert("Project details synced instantly! ⚡");
           setEditingId(null);
         }
       } else {
-        // ➕ INSERT (POST) LOGIC FOR SUPABASE
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
+        // ➕ INSERT LOGIC (POST)
+        response = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ title, location, tag, img })
         });
-        if (response.ok) alert("Project pushed to database! 📁");
+        if (response.ok) alert("New project pushed to Supabase live! 📁");
       }
 
-      // Clear fields & pull updated data into client UI
+      // Reset fields instantly and pull latest from DB
       setTitle(''); setLocation(''); setImg('');
-      if (refreshData) await refreshData();
+      if (refreshData) await refreshData(); 
 
     } catch (err) {
-      console.error(err);
-      alert("Database transfer crashed!");
+      console.error("Link Transfer Error:", err);
+      alert("Database update crashed! Link check kar.");
     } finally {
       setLoading(false);
     }
@@ -75,11 +76,13 @@ export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsDa
         headers
       });
       if (response.ok) {
-        alert("Project purged from database!");
-        if (refreshData) await refreshData();
+        alert("Project permanently deleted!");
+        if (refreshData) await refreshData(); 
+      } else {
+        alert("Delete failed, try again.");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Purge Error:", err);
     } finally {
       setLoading(false);
     }
@@ -87,6 +90,8 @@ export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsDa
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      {/* FORM CORE */}
       <div className={`p-6 border rounded-2xl shadow-xl h-fit ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
         <h2 className="text-sm font-bold tracking-widest mb-4 text-[#c85a32] uppercase">
           {editingId ? '⚡ EDIT PROJECT BLUEPRINT' : '➕ CREATE NEW PROJECT'}
@@ -117,29 +122,41 @@ export default function AdminPortfolio({ isDarkMode, projectsData, setProjectsDa
           <button type="submit" disabled={loading} className="w-full py-3 bg-[#c85a32] text-white text-xs font-bold rounded-xl active:scale-95 transition-all uppercase tracking-widest disabled:opacity-50">
             {loading ? 'Processing DB...' : (editingId ? 'Update Asset' : 'Push to Site')}
           </button>
+          
+          {editingId && (
+            <button type="button" onClick={() => { setEditingId(null); setTitle(''); setLocation(''); setImg(''); }} className="w-full py-2 bg-zinc-600 text-white text-xs font-bold rounded-xl">
+              Cancel
+            </button>
+          )}
         </form>
       </div>
 
+      {/* INDEX LIST */}
       <div className="lg:col-span-2 p-6 border rounded-2xl shadow-xl h-fit bg-transparent">
         <h2 className="text-sm font-bold tracking-widest mb-4 text-[#148346]">📁 LIVE PORTFOLIO INDEX ({projectsData.length})</h2>
         <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto">
-          {projectsData.map((project) => (
-            <div key={project.id} className={`flex items-center justify-between p-3 border rounded-xl ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
-              <div className="flex items-center gap-3 min-w-0">
-                <img src={project.img} alt="" className="w-12 h-12 object-cover rounded-lg bg-zinc-800" />
-                <div className="min-w-0">
-                  <h4 className="text-xs font-bold truncate">{project.title}</h4>
-                  <p className="text-[10px] text-zinc-500">📍 {project.location} | <span className="text-[#c85a32]">{project.tag}</span></p>
+          {projectsData.length === 0 ? (
+            <div className="text-xs font-mono text-zinc-500 py-4">No data found in Supabase table.</div>
+          ) : (
+            projectsData.map((project) => (
+              <div key={project.id} className={`flex items-center justify-between p-3 border rounded-xl ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
+                <div className="flex items-center gap-3 min-w-0">
+                  <img src={project.img} alt="" className="w-12 h-12 object-cover rounded-lg bg-zinc-800 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-bold truncate">{project.title}</h4>
+                    <p className="text-[10px] text-zinc-500">📍 {project.location} | <span className="text-[#c85a32]">{project.tag}</span></p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <button onClick={() => startEdit(project)} className="px-2.5 py-1.5 bg-zinc-500/10 text-[10px] font-bold rounded-lg text-zinc-400 hover:text-white">EDIT</button>
+                  <button onClick={() => deleteProject(project.id)} className="px-2.5 py-1.5 bg-red-600/10 text-[10px] font-bold rounded-lg text-red-500 hover:bg-red-600 hover:text-white">DEL</button>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <button onClick={() => startEdit(project)} className="px-2.5 py-1.5 bg-zinc-500/10 text-[10px] font-bold rounded-lg text-zinc-400">EDIT</button>
-                <button onClick={() => deleteProject(project.id)} className="px-2.5 py-1.5 bg-red-600/10 text-[10px] font-bold rounded-lg text-red-500">DEL</button>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
+
     </div>
   );
 }
