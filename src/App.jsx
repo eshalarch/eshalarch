@@ -5,7 +5,8 @@ import Home from './pages/Home';
 import Services from './pages/Services';
 import SiteVisit from './pages/SiteVisit';
 import OrderStatus from './pages/OrderStatus';
-import Admin from './pages/Admin';
+// MODULAR UPDATE: Puraane single Admin ko hata kar direct naye folder ke master controller se jodh diya hai
+import Admin from './pages/admin/AdminPanel'; 
 import Auth from './pages/Auth';
 
 export default function App() {
@@ -22,7 +23,7 @@ export default function App() {
     { id: 2, title: 'Commercial Complex Blueprint', location: 'Gandhinagar', tag: '2D Layout', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&auto=format&fit=crop&q=60' }
   ]);
 
-  // 2. DYNAMIC SERVICES STATE (Admin se control hone ke liye original array)
+  // 2. DYNAMIC SERVICES STATE (Admin aur Client Services dono ke liye centralized handler)
   const [servicesData, setServicesData] = useState([
     { id: '01', title: '2D Layout Plan', desc: 'Precision-engineered blueprints mapping architectural space configurations down to the millimeter.', color: 'border-[#148346]/40', numColor: 'text-[#148346]', formHeading: 'Request 2D Layout Blueprint Specifications', formPlaceholder: 'Enter your plot size...' },
     { id: '02', title: '3D Elevation', desc: 'High-end photorealistic external structures and interior renders visualizing forms before ground-breaking.', color: 'border-[#c85a32]/40', numColor: 'text-[#c85a32]', formHeading: 'Consultation for 3D External & Interior Renderings', formPlaceholder: 'Upload your rough sketch...' }
@@ -99,7 +100,7 @@ export default function App() {
               </div>
             </div>
           ) : (
-            /* ADMIN PANEL: Portfolio aur Services dono ka states array pass kiya taaki edit/add work kare */
+            /* ADMIN MASTER ROUTER: Yahan se portfolio aur service components dono ko direct access handle pass kar diya */
             <Admin 
               isDarkMode={isDarkMode} 
               servicesData={servicesData} 
@@ -110,7 +111,7 @@ export default function App() {
           )
         ) : (
           <>
-            {/* HOME TABS: Dynamic projects pass kiye */}
+            {/* HOME TABS: Dynamic portfolio linked */}
             {activeTab === 'home' && (
               <Home 
                 isDarkMode={isDarkMode} 
@@ -119,7 +120,7 @@ export default function App() {
               />
             )}
 
-            {/* SERVICES TABS */}
+            {/* SERVICES TABS: Connected with dynamic service configs */}
             {activeTab === 'services' && (
               <Services 
                 isDarkMode={isDarkMode} 
