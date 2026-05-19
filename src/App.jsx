@@ -6,18 +6,14 @@ import Services from './pages/Services';
 import SiteVisit from './pages/SiteVisit';
 import OrderStatus from './pages/OrderStatus';
 import Admin from './pages/Admin';
-import Auth from './pages/Auth'; // Naya Auth Page Import kiya
+import Auth from './pages/Auth';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
-  
-  // Real User State (Null matlab logged out, object matlab logged in)
   const [user, setUser] = useState(null); 
-  
-  // URL hash track karne ke liye state (#admin check karne ke liye)
   const [currentHash, setCurrentHash] = useState(window.location.hash);
 
   useEffect(() => {
@@ -32,8 +28,6 @@ export default function App() {
   ]);
 
   const [openServicePageId, setOpenServicePageId] = useState(null);
-
-  // Is hash checking #admin right now?
   const isUrlAdminRoute = currentHash === '#admin';
 
   const handleAdminLoginSubmit = (e) => {
@@ -46,24 +40,20 @@ export default function App() {
     }
   };
 
-  // Central Central Locking System - Isko hum baaki pages me bhejenge
+  // Central Locking Gates for Buttons
   const requireAuth = (successAction) => {
     if (!user) {
-      // Agar user login nahi hai, to direct login tab par bhej do
       setActiveTab('auth');
     } else {
-      // Agar login hai, to jo kaam karna tha wo karne do
       if (successAction) successAction();
     }
   };
 
-  // Fake login success simulation
   const handleLoginSuccess = () => {
-    setUser({ email: 'architect.user@gmail.com', user_metadata: { full_name: 'Client Partner' } });
-    setActiveTab('home'); // Login hote hi home par bhejo
+    setUser({ email: 'client@akvai.com', user_metadata: { full_name: 'Premium Client' } });
+    setActiveTab('home'); 
   };
 
-  // Logout Trigger
   const handleLogout = () => {
     setUser(null);
     setActiveTab('home');
@@ -72,25 +62,21 @@ export default function App() {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-[#f8f9fa] text-zinc-900'}`}>
       
-      {/* Header me user state, logout, aur auth navigation link kar di */}
+      {/* FIXED HEADER: Now strictly takes setActiveTab */}
       <Header 
         isDarkMode={isDarkMode} 
         setIsDarkMode={setIsDarkMode} 
         user={user} 
         handleLogout={handleLogout}
-        // Agar header ka profile button click ho to direct auth tab khule
-        navigate={(route) => { if(route === '/auth') setActiveTab('auth'); else setActiveTab('home'); }} 
+        setActiveTab={setActiveTab} 
       />
 
-      <main className="pb-24">
+      <main className="pt-24 pb-24">
         {isUrlAdminRoute ? (
-          // IF SECRET URL VISITED
           !isAdminAuthenticated ? (
-            /* SECURITY LOCK GATE */
             <div className="px-4 py-32 min-h-screen flex items-center justify-center">
               <div className={`p-6 border rounded-2xl shadow-2xl max-w-sm w-full ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
                 <h2 className="text-sm font-bold tracking-widest mb-2 text-[#c85a32]">🔒 ADMIN ACCESS LOCK</h2>
-                <p className="text-[10px] text-zinc-500 mb-4">This route is restricted to AKVAI Administrators only.</p>
                 <form onSubmit={handleAdminLoginSubmit} className="flex flex-col gap-3">
                   <input 
                     type="password" 
@@ -106,46 +92,22 @@ export default function App() {
               </div>
             </div>
           ) : (
-            /* LOCKED AUTHENTICATED PANEL */
             <Admin isDarkMode={isDarkMode} servicesData={servicesData} setServicesData={setServicesData} />
           )
         ) : (
-          // PUBLIC WEBSITE TABS WITH GATED CONTROLS
           <>
-            {activeTab === 'home' && (
-              <Home isDarkMode={isDarkMode} requireAuth={requireAuth} />
-            )}
-            
-            {activeTab === 'services' && (
-              <Services 
-                isDarkMode={isDarkMode} 
-                servicesData={servicesData} 
-                openServicePageId={openServicePageId} 
-                setOpenServicePageId={setOpenServicePageId} 
-                requireAuth={requireAuth} 
-              />
-            )}
-            
-            {activeTab === 'site' && (
-              <SiteVisit isDarkMode={isDarkMode} requireAuth={requireAuth} />
-            )}
-            
-            {activeTab === 'status' && (
-              <OrderStatus isDarkMode={isDarkMode} requireAuth={requireAuth} />
-            )}
-
-            {/* AUTH TABS INTERACTION */}
-            {activeTab === 'auth' && (
-              <Auth isDarkMode={isDarkMode} onLoginSuccess={handleLoginSuccess} />
-            )}
+            {activeTab === 'home' && <Home isDarkMode={isDarkMode} requireAuth={requireAuth} />}
+            {activeTab === 'services' && <Services isDarkMode={isDarkMode} servicesData={servicesData} openServicePageId={openServicePageId} setOpenServicePageId={setOpenServicePageId} requireAuth={requireAuth} />}
+            {activeTab === 'site' && <SiteVisit isDarkMode={isDarkMode} requireAuth={requireAuth} />}
+            {activeTab === 'status' && <OrderStatus isDarkMode={isDarkMode} requireAuth={requireAuth} />}
+            {activeTab === 'auth' && <Auth isDarkMode={isDarkMode} onLoginSuccess={handleLoginSuccess} setActiveTab={setActiveTab} />}
           </>
         )}
       </main>
 
-      {/* Public pages footer. Hidden inside the admin route */}
       {!isUrlAdminRoute && (
         <Footer 
-          activeTab={activeTab === 'auth' ? 'home' : activeTab} // Auth screen par koi specific tab select na dikhe footer me
+          activeTab={activeTab === 'auth' ? 'home' : activeTab} 
           setActiveTab={(tabId) => { setOpenServicePageId(null); setActiveTab(tabId); }} 
           isDarkMode={isDarkMode} 
         />
