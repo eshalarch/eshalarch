@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import AdminPortfolio from './AdminPortfolio';
 import AdminServices from './AdminServices';
 
-export default function AdminPanel({ isDarkMode, servicesData, setServicesData, projectsData, setProjectsData }) {
-  // By default portfolio control khulega
+export default function AdminPanel({ isDarkMode, servicesData, setServicesData, projectsData, setProjectsData, refreshData }) {
   const [adminTab, setAdminTab] = useState('portfolio'); 
 
   return (
     <div className="min-h-screen px-4 py-8">
       
-      {/* 👑 ADMIN PREMIUM HEADER & NAVIGATION (LOOK MATCHES CLIENT APP) */}
       <div className={`mb-10 p-6 border rounded-2xl shadow-xl transition-all duration-300
         ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
         
@@ -22,11 +20,10 @@ export default function AdminPanel({ isDarkMode, servicesData, setServicesData, 
           </div>
           <div className="flex items-center gap-2 bg-zinc-500/10 px-3 py-1.5 rounded-xl border border-zinc-500/20">
             <span className="w-2 h-2 rounded-full bg-[#148346] animate-pulse"></span>
-            <span className="text-[10px] font-bold tracking-wider text-zinc-400 uppercase">System Live</span>
+            <span className="text-[10px] font-bold tracking-wider text-zinc-400 uppercase">Database Connected</span>
           </div>
         </div>
 
-        {/* ADMIN DYNAMIC NAVIGATION TABS */}
         <div className="flex flex-wrap gap-2 border-t pt-4 border-zinc-800">
           <button 
             onClick={() => setAdminTab('portfolio')}
@@ -47,25 +44,16 @@ export default function AdminPanel({ isDarkMode, servicesData, setServicesData, 
           >
             🛠️ MANAGE SERVICES
           </button>
-
-          {/* FUTURE CONTROL PLACEHOLDER BUTTON */}
-          <button 
-            disabled
-            className={`px-4 py-2.5 text-xs font-bold tracking-wider rounded-xl opacity-40 cursor-not-allowed border border-dashed
-              ${isDarkMode ? 'border-zinc-800 text-zinc-600' : 'border-zinc-300 text-zinc-400'}`}
-          >
-            ⚙️ NEXT MODULE (LOCKED)
-          </button>
         </div>
       </div>
 
-      {/* DYNAMIC ROUTING INNER CORE */}
       <div className="animate-fade-in">
         {adminTab === 'portfolio' && (
           <AdminPortfolio 
             isDarkMode={isDarkMode} 
             projectsData={projectsData} 
             setProjectsData={setProjectsData} 
+            refreshData={refreshData}
           />
         )}
         {adminTab === 'services' && (
@@ -73,6 +61,7 @@ export default function AdminPanel({ isDarkMode, servicesData, setServicesData, 
             isDarkMode={isDarkMode} 
             servicesData={servicesData} 
             setServicesData={setServicesData} 
+            refreshData={refreshData}
           />
         )}
       </div>
