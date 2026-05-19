@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Back navigation ke liye add kiya
 
 export default function Auth({ isDarkMode, onLoginSuccess }) {
   const [isSignup, setIsSignup] = useState(false);
   const [formData, setFormData] = useState({ name: '', username: '', email: '', password: '' });
+  const navigate = useNavigate(); // Navigation initialize kiya
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -11,14 +13,25 @@ export default function Auth({ isDarkMode, onLoginSuccess }) {
   };
 
   return (
-    <div className="px-4 py-28 min-h-screen flex items-center justify-center animate-fade-in">
-      <div className={`w-full max-w-md p-6 border rounded-2xl shadow-2xl transition-colors duration-300
+    <div className="min-h-screen w-full flex flex-col justify-between px-4 py-24 relative overflow-y-auto animate-fade-in">
+      
+      {/* 1. BACK BUTTON (Top Left Par Fix) */}
+      <button 
+        onClick={() => navigate(-1)} // Ispar click karte hi banda piche wale page par chala jayega
+        className={`absolute top-24 left-4 z-50 flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-xl border shadow-sm transition-all active:scale-95
+          ${isDarkMode ? 'border-zinc-800 bg-zinc-900/90 text-zinc-300 hover:text-white' : 'border-zinc-200 bg-white/95 text-zinc-600 hover:text-black'}`}
+      >
+        ← Back
+      </button>
+
+      {/* TERA ASLI SIGNUP / LOGIN CARD */}
+      <div className="w-full max-w-md mx-auto my-auto p-6 border rounded-2xl shadow-2xl transition-colors duration-300
         ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
         
         {/* Tab Switcher */}
         <div className="flex border-b border-zinc-700 mb-6">
-          <button onClick={() => setIsSignup(false)} className={`flex-1 pb-3 text-sm font-bold tracking-wider transition-all ${!isSignup ? 'text-[#c85a32] border-b-2 border-[#c85a32]' : 'text-zinc-500'}`}>LOGIN</button>
-          <button onClick={() => setIsSignup(true)} className={`flex-1 pb-3 text-sm font-bold tracking-wider transition-all ${isSignup ? 'text-[#148346] border-b-2 border-[#148346]' : 'text-zinc-500'}`}>SIGNUP</button>
+          <button type="button" onClick={() => setIsSignup(false)} className={`flex-1 pb-3 text-sm font-bold tracking-wider transition-all ${!isSignup ? 'text-[#c85a32] border-b-2 border-[#c85a32]' : 'text-zinc-500'}`}>LOGIN</button>
+          <button type="button" onClick={() => setIsSignup(true)} className={`flex-1 pb-3 text-sm font-bold tracking-wider transition-all ${isSignup ? 'text-[#148346] border-b-2 border-[#148346]' : 'text-zinc-500'}`}>SIGNUP</button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -42,6 +55,14 @@ export default function Auth({ isDarkMode, onLoginSuccess }) {
           </button>
         </form>
       </div>
+
+      {/* 2. FOOTER NAVIGATION CONTROL PLACEHOLDER */}
+      {/* Yeh div niche space lock karega taaki mobile footer navigation iske upar overlap na kare aur saaf dikhe */}
+      <div className="w-full text-center text-[10px] tracking-widest font-mono uppercase mt-8 transition-colors duration-300
+        ${isDarkMode ? 'text-zinc-600' : 'text-zinc-400'}`}>
+        Secure Architecture Platform © 2026
+      </div>
+
     </div>
   );
 }
