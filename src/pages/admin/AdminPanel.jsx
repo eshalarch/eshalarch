@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminPortfolio from './AdminPortfolio';
 import AdminServices from './AdminServices';
 
 export default function AdminPanel({ isDarkMode, servicesData, setServicesData, projectsData, setProjectsData, refreshData }) {
-  const [adminTab, setAdminTab] = useState('portfolio'); 
+  // Refresh hone par bhi tab yaad rakhega
+  const [adminTab, setAdminTab] = useState(() => {
+    return localStorage.getItem('akvai_admin_tab') || 'portfolio';
+  }); 
+
+  useEffect(() => {
+    localStorage.setItem('akvai_admin_tab', adminTab);
+  }, [adminTab]);
 
   return (
     <div className="min-h-screen px-4 py-8">
       
+      {/* HEADER CONTROLLER CARD */}
       <div className={`mb-10 p-6 border rounded-2xl shadow-xl transition-all duration-300
         ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
         
@@ -20,10 +28,11 @@ export default function AdminPanel({ isDarkMode, servicesData, setServicesData, 
           </div>
           <div className="flex items-center gap-2 bg-zinc-500/10 px-3 py-1.5 rounded-xl border border-zinc-500/20">
             <span className="w-2 h-2 rounded-full bg-[#148346] animate-pulse"></span>
-            <span className="text-[10px] font-bold tracking-wider text-zinc-400 uppercase">Database Connected</span>
+            <span className="text-[10px] font-bold tracking-wider text-zinc-400 uppercase">Database Live Connection</span>
           </div>
         </div>
 
+        {/* TAB BUTTONS */}
         <div className="flex flex-wrap gap-2 border-t pt-4 border-zinc-800">
           <button 
             onClick={() => setAdminTab('portfolio')}
@@ -47,6 +56,7 @@ export default function AdminPanel({ isDarkMode, servicesData, setServicesData, 
         </div>
       </div>
 
+      {/* DYNAMIC RENDERING PANEL */}
       <div className="animate-fade-in">
         {adminTab === 'portfolio' && (
           <AdminPortfolio 
