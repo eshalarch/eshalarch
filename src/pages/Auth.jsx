@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-export default function Auth({ isDarkMode, onLoginSuccess }) {
+export default function Auth({ isDarkMode, onLoginSuccess, setActiveTab }) {
   const [isSignup, setIsSignup] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -11,19 +9,19 @@ export default function Auth({ isDarkMode, onLoginSuccess }) {
   };
 
   return (
-    <div className={`min-h-screen w-full flex flex-col justify-between px-4 py-24 relative overflow-y-auto animate-fade-in`}>
+    <div className="min-h-screen w-full flex flex-col justify-between px-4 py-24 relative overflow-y-auto animate-fade-in">
       
-      {/* 1. BACK BUTTON */}
+      {/* BACK BUTTON (Direct Home tab par bhejega) */}
       <button 
         type="button"
-        onClick={() => navigate(-1)} 
+        onClick={() => setActiveTab('home')} 
         className={`absolute top-24 left-4 z-50 flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-xl border shadow-sm transition-all active:scale-95
           ${isDarkMode ? 'border-zinc-800 bg-zinc-900/90 text-zinc-300 hover:text-white' : 'border-zinc-200 bg-white/95 text-zinc-600 hover:text-black'}`}
       >
         ← Back
       </button>
 
-      {/* 2. TERA ASLI SIGNUP / LOGIN CARD */}
+      {/* TERA ASLI SIGNUP / LOGIN CARD */}
       <div className={`w-full max-w-md mx-auto my-auto p-6 border rounded-2xl shadow-2xl transition-colors duration-300
         ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
         
@@ -67,7 +65,7 @@ export default function Auth({ isDarkMode, onLoginSuccess }) {
         </form>
       </div>
 
-      {/* 3. FOOTER NAVIGATION CONTROL PLACEHOLDER */}
+      {/* FOOTER NAVIGATION CONTROL PLACEHOLDER */}
       <div className={`w-full text-center text-[10px] tracking-widest font-mono uppercase mt-8 transition-colors duration-300
         ${isDarkMode ? 'text-zinc-600' : 'text-zinc-400'}`}>
         Secure Architecture Platform © 2026
