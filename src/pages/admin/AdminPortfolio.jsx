@@ -5,20 +5,24 @@ export default function AdminPortfolio({ isDarkMode, projectsData = [], refreshD
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [tag, setTag] = useState('');
+  const [img, setImg] = useState(''); // Naya state
   const [loading, setLoading] = useState(false);
 
   const handleAddProject = async () => {
-    if (!title || !location) return alert("Title aur Location bhar bhai!");
+    if (!title || !location) return alert("Title aur Location zaruri hai!");
     setLoading(true);
     
+    // Ab 'img' bhi sath mein jaa raha hai
     const { error } = await supabase
       .from('projects')
-      .insert([{ title, location, tag }]);
+      .insert([{ title, location, tag, img }]);
 
     if (error) {
       console.error("Error:", error.message);
+      alert("Database Error: " + error.message);
     } else {
-      setTitle(''); setLocation(''); setTag('');
+      setTitle(''); setLocation(''); setTag(''); setImg('');
+      alert("Project Save ho gaya!");
       if (refreshData) await refreshData();
     }
     setLoading(false);
@@ -26,7 +30,6 @@ export default function AdminPortfolio({ isDarkMode, projectsData = [], refreshD
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-white">
-      {/* FORM CARD - Same as AdminServices */}
       <div className={`p-6 border rounded-2xl shadow-xl h-fit ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200 text-black'}`}>
         <h2 className="text-sm font-bold tracking-widest mb-4 text-[#c85a32] uppercase">➕ ADD NEW PROJECT</h2>
         
@@ -45,10 +48,18 @@ export default function AdminPortfolio({ isDarkMode, projectsData = [], refreshD
           />
           <input 
             className={`w-full border rounded-xl px-4 py-2.5 text-xs focus:outline-none ${isDarkMode ? 'bg-black border-zinc-800 text-white' : 'bg-zinc-50 border-zinc-300'}`}
-            placeholder="TAG (e.g. Residential)" 
+            placeholder="TAG" 
             value={tag} 
             onChange={(e) => setTag(e.target.value)} 
           />
+          {/* YE HAI WO IMAGE LINK BOX */}
+          <input 
+            className={`w-full border rounded-xl px-4 py-2.5 text-xs focus:outline-none ${isDarkMode ? 'bg-black border-zinc-800 text-white' : 'bg-zinc-50 border-zinc-300'}`}
+            placeholder="IMAGE URL (Required)" 
+            value={img} 
+            onChange={(e) => setImg(e.target.value)} 
+          />
+          
           <button 
             onClick={handleAddProject}
             disabled={loading}
@@ -59,7 +70,6 @@ export default function AdminPortfolio({ isDarkMode, projectsData = [], refreshD
         </div>
       </div>
 
-      {/* LIST CARD - Same as AdminServices */}
       <div className="lg:col-span-2 p-6 border rounded-2xl shadow-xl h-fit bg-transparent">
         <h2 className="text-sm font-bold tracking-widest mb-4 text-[#c85a32]">📂 CURRENT PORTFOLIO ({(projectsData || []).length})</h2>
         <div className="flex flex-col gap-3">
