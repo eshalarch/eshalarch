@@ -6,12 +6,16 @@ import Services from './pages/Services';
 import SiteVisit from './pages/SiteVisit';
 import OrderStatus from './pages/OrderStatus';
 import Admin from './pages/Admin';
+import Auth from './pages/Auth'; // Naya Auth Page Import kiya
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  
+  // Real User State (Null matlab logged out, object matlab logged in)
+  const [user, setUser] = useState(null); 
   
   // URL hash track karne ke liye state (#admin check karne ke liye)
   const [currentHash, setCurrentHash] = useState(window.location.hash);
@@ -34,7 +38,6 @@ export default function App() {
 
   const handleAdminLoginSubmit = (e) => {
     e.preventDefault();
-    // Tumhaara secret master password
     if (adminPasswordInput === 'akvai2026') { 
       setIsAdminAuthenticated(true);
     } else {
@@ -43,10 +46,41 @@ export default function App() {
     }
   };
 
+  // Central Central Locking System - Isko hum baaki pages me bhejenge
+  const requireAuth = (successAction) => {
+    if (!user) {
+      // Agar user login nahi hai, to direct login tab par bhej do
+      setActiveTab('auth');
+    } else {
+      // Agar login hai, to jo kaam karna tha wo karne do
+      if (successAction) successAction();
+    }
+  };
+
+  // Fake login success simulation
+  const handleLoginSuccess = () => {
+    setUser({ email: 'architect.user@gmail.com', user_metadata: { full_name: 'Client Partner' } });
+    setActiveTab('home'); // Login hote hi home par bhejo
+  };
+
+  // Logout Trigger
+  const handleLogout = () => {
+    setUser(null);
+    setActiveTab('home');
+  };
+
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-[#f8f9fa] text-zinc-900'}`}>
       
-      <Header isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      {/* Header me user state, logout, aur auth navigation link kar di */}
+      <Header 
+        isDarkMode={isDarkMode} 
+        setIsDarkMode={setIsDarkMode} 
+        user={user} 
+        handleLogout={handleLogout}
+        // Agar header ka profile button click ho to direct auth tab khule
+        navigate={(route) => { if(route === '/auth') setActiveTab('auth'); else setActiveTab('home'); }} 
+      />
 
       <main className="pb-24">
         {isUrlAdminRoute ? (
@@ -76,20 +110,42 @@ export default function App() {
             <Admin isDarkMode={isDarkMode} servicesData={servicesData} setServicesData={setServicesData} />
           )
         ) : (
-          // PUBLIC WEBSITE
+          // PUBLIC WEBSITE TABS WITH GATED CONTROLS
           <>
-            {activeTab === 'home' && <Home isDarkMode={isDarkMode} />}
-            {activeTab === 'services' && <Services isDarkMode={isDarkMode} servicesData={servicesData} openServicePageId={openServicePageId} setOpenServicePageId={setOpenServicePageId} />}
-            {activeTab === 'site' && <SiteVisit isDarkMode={isDarkMode} />}
-            {activeTab === 'status' && <OrderStatus isDarkMode={isDarkMode} />}
+            {activeTab === 'home' && (
+              <Home isDarkMode={isDarkMode} requireAuth={requireAuth} />
+            )}
+            
+            {activeTab === 'services' && (
+              <Services 
+                isDarkMode={isDarkMode} 
+                servicesData={servicesData} 
+                openServicePageId={openServicePageId} 
+                setOpenServicePageId={setOpenServicePageId} 
+                requireAuth={requireAuth} 
+              />
+            )}
+            
+            {activeTab === 'site' && (
+              <SiteVisit isDarkMode={isDarkMode} requireAuth={requireAuth} />
+            )}
+            
+            {activeTab === 'status' && (
+              <OrderStatus isDarkMode={isDarkMode} requireAuth={requireAuth} />
+            )}
+
+            {/* AUTH TABS INTERACTION */}
+            {activeTab === 'auth' && (
+              <Auth isDarkMode={isDarkMode} onLoginSuccess={handleLoginSuccess} />
+            )}
           </>
         )}
       </main>
 
-      {/* Public pages footer. Hidden when inside the admin route to prevent tracking breakage */}
+      {/* Public pages footer. Hidden inside the admin route */}
       {!isUrlAdminRoute && (
         <Footer 
-          activeTab={activeTab} 
+          activeTab={activeTab === 'auth' ? 'home' : activeTab} // Auth screen par koi specific tab select na dikhe footer me
           setActiveTab={(tabId) => { setOpenServicePageId(null); setActiveTab(tabId); }} 
           isDarkMode={isDarkMode} 
         />
