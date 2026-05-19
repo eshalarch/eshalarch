@@ -5,34 +5,79 @@ import Home from './pages/Home';
 import Services from './pages/Services';
 import SiteVisit from './pages/SiteVisit';
 import OrderStatus from './pages/OrderStatus';
-// MODULAR UPDATE: Puraane single Admin ko hata kar direct naye folder ke master controller se jodh diya hai
 import Admin from './pages/admin/AdminPanel'; 
 import Auth from './pages/Auth';
 
+const SUPABASE_URL = 'https://rkxwxkzqytzaajgrmloz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_8vd5uZd2ivCwTEtkcdaj9g_EpSnevVC';
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('home');
+  // MEMORY RECALL FIX: Refresh par purana active tab aur auth memory se recover hoga
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('akvai_active_tab') || 'home';
+  });
+  
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return localStorage.getItem('akvai_admin_auth') === 'true';
+  });
+
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [user, setUser] = useState(null); 
   const [currentHash, setCurrentHash] = useState(window.location.hash);
 
-  // 1. DYNAMIC PORTFOLIO PROJECTS STATE (Admin se fully control hone ke liye template database array)
-  const [projectsData, setProjectsData] = useState([
-    { id: 1, title: 'Modern Villa Project', location: 'Ahmedabad', tag: '3D Elevation', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&auto=format&fit=crop&q=60' },
-    { id: 2, title: 'Commercial Complex Blueprint', location: 'Gandhinagar', tag: '2D Layout', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&auto=format&fit=crop&q=60' }
-  ]);
-
-  // 2. DYNAMIC SERVICES STATE (Admin aur Client Services dono ke liye centralized handler)
-  const [servicesData, setServicesData] = useState([
-    { id: '01', title: '2D Layout Plan', desc: 'Precision-engineered blueprints mapping architectural space configurations down to the millimeter.', color: 'border-[#148346]/40', numColor: 'text-[#148346]', formHeading: 'Request 2D Layout Blueprint Specifications', formPlaceholder: 'Enter your plot size...' },
-    { id: '02', title: '3D Elevation', desc: 'High-end photorealistic external structures and interior renders visualizing forms before ground-breaking.', color: 'border-[#c85a32]/40', numColor: 'text-[#c85a32]', formHeading: 'Consultation for 3D External & Interior Renderings', formPlaceholder: 'Upload your rough sketch...' }
-  ]);
-
+  const [projectsData, setProjectsData] = useState([]);
+  const [servicesData, setServicesData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [openServicePageId, setOpenServicePageId] = useState(null);
+
   const isUrlAdminRoute = currentHash === '#admin';
 
+  // State change hote hi browser local storage me instantly state store karega
   useEffect(() => {
+    localStorage.setItem('akvai_active_tab', activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('akvai_admin_auth', isAdminAuthenticated);
+  }, [isAdminAuthenticated]);
+
+  const fetchDatabaseData = async () => {
+    try {
+      setLoading(true);
+      const headers = {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      };
+
+      const resProjects = await fetch(`${SUPABASE_URL}/rest/v1/projects?select=*&order=id.desc`, { headers });
+      const projects = await resProjects.json();
+      setProjectsData(projects || []);
+
+      const resServices = await fetch(`${SUPABASE_URL}/rest/v1/services?select=*&order=id.asc`, { headers });
+      const services = await resServices.json();
+      
+      const formattedServices = (services || []).map(s => ({
+        id: s.id,
+        title: s.title,
+        desc: s.desc_text, 
+        formHeading: s.form_heading,
+        formPlaceholder: s.form_placeholder,
+        color: parseInt(s.id) % 2 === 0 ? 'border-[#c85a32]/40' : 'border-[#148346]/40',
+        numColor: parseInt(s.id) % 2 === 0 ? 'text-[#c85a32]' : 'text-[#148346]'
+      }));
+      setServicesData(formattedServices);
+
+    } catch (error) {
+      console.error("Supabase load error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDatabaseData();
     const handleHashChange = () => setCurrentHash(window.location.hash);
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
@@ -48,7 +93,6 @@ export default function App() {
     }
   };
 
-  // Central Access Guard Logic for Dynamic Buttons
   const requireAuth = (successAction) => {
     if (!user) {
       setActiveTab('auth');
@@ -70,7 +114,6 @@ export default function App() {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-[#f8f9fa] text-zinc-900'}`}>
       
-      {/* FIXED HEADER */}
       <Header 
         isDarkMode={isDarkMode} 
         setIsDarkMode={setIsDarkMode} 
@@ -80,7 +123,11 @@ export default function App() {
       />
 
       <main className="pt-24 pb-24">
-        {isUrlAdminRoute ? (
+        {loading ? (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-xs font-mono tracking-widest text-[#c85a32] animate-pulse uppercase">Connecting to live network...</div>
+          </div>
+        ) : isUrlAdminRoute ? (
           !isAdminAuthenticated ? (
             <div className="px-4 py-32 min-h-screen flex items-center justify-center">
               <div className={`p-6 border rounded-2xl shadow-2xl max-w-sm w-full ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
@@ -100,18 +147,17 @@ export default function App() {
               </div>
             </div>
           ) : (
-            /* ADMIN MASTER ROUTER: Yahan se portfolio aur service components dono ko direct access handle pass kar diya */
             <Admin 
               isDarkMode={isDarkMode} 
               servicesData={servicesData} 
               setServicesData={setServicesData} 
               projectsData={projectsData}
               setProjectsData={setProjectsData}
+              refreshData={fetchDatabaseData} 
             />
           )
         ) : (
           <>
-            {/* HOME TABS: Dynamic portfolio linked */}
             {activeTab === 'home' && (
               <Home 
                 isDarkMode={isDarkMode} 
@@ -120,7 +166,6 @@ export default function App() {
               />
             )}
 
-            {/* SERVICES TABS: Connected with dynamic service configs */}
             {activeTab === 'services' && (
               <Services 
                 isDarkMode={isDarkMode} 
