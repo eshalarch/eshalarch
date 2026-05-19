@@ -11,7 +11,7 @@ export default function Auth({ isDarkMode, onLoginSuccess, setActiveTab }) {
   return (
     <div className="min-h-screen w-full flex flex-col justify-between px-4 py-24 relative overflow-y-auto animate-fade-in">
       
-      {/* BACK BUTTON (Direct Home tab par bhejega) */}
+      {/* BACK BUTTON - FIXED ACTIVE TAB RESET FOR HOME REDIRECT */}
       <button 
         type="button"
         onClick={() => setActiveTab('home')} 
@@ -21,26 +21,12 @@ export default function Auth({ isDarkMode, onLoginSuccess, setActiveTab }) {
         ← Back
       </button>
 
-      {/* TERA ASLI SIGNUP / LOGIN CARD */}
       <div className={`w-full max-w-md mx-auto my-auto p-6 border rounded-2xl shadow-2xl transition-colors duration-300
         ${isDarkMode ? 'bg-[#111115] border-zinc-800' : 'bg-white border-zinc-200'}`}>
         
-        {/* Tab Switcher */}
         <div className="flex border-b border-zinc-700 mb-6">
-          <button 
-            type="button" 
-            onClick={() => setIsSignup(false)} 
-            className={`flex-1 pb-3 text-sm font-bold tracking-wider transition-all ${!isSignup ? 'text-[#c85a32] border-b-2 border-[#c85a32]' : 'text-zinc-500'}`}
-          >
-            LOGIN
-          </button>
-          <button 
-            type="button" 
-            onClick={() => setIsSignup(true)} 
-            className={`flex-1 pb-3 text-sm font-bold tracking-wider transition-all ${isSignup ? 'text-[#148346] border-b-2 border-[#148346]' : 'text-zinc-500'}`}
-          >
-            SIGNUP
-          </button>
+          <button type="button" onClick={() => setIsSignup(false)} className={`flex-1 pb-3 text-sm font-bold tracking-wider transition-all ${!isSignup ? 'text-[#c85a32] border-b-2 border-[#c85a32]' : 'text-zinc-500'}`}>LOGIN</button>
+          <button type="button" onClick={() => setIsSignup(true)} className={`flex-1 pb-3 text-sm font-bold tracking-wider transition-all ${isSignup ? 'text-[#148346] border-b-2 border-[#148346]' : 'text-zinc-500'}`}>SIGNUP</button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -65,12 +51,10 @@ export default function Auth({ isDarkMode, onLoginSuccess, setActiveTab }) {
         </form>
       </div>
 
-      {/* FOOTER NAVIGATION CONTROL PLACEHOLDER */}
       <div className={`w-full text-center text-[10px] tracking-widest font-mono uppercase mt-8 transition-colors duration-300
         ${isDarkMode ? 'text-zinc-600' : 'text-zinc-400'}`}>
         Secure Architecture Platform © 2026
       </div>
-
     </div>
   );
 }
