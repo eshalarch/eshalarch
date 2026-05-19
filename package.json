@@ -13,6 +13,12 @@
     "react-dom": "^18.2.0",
     "lucide-react": "^0.263.1"
   },
+"dependencies": {
+  "react": "^18.x.x",
+  "react-dom": "^18.x.x",
+  "@supabase/supabase-js": "^2.0.0"
+},
+
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
