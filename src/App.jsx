@@ -34,24 +34,29 @@ export default function App() {
     localStorage.setItem('akvai_admin_auth', isAdminAuthenticated);
   }, [isAdminAuthenticated]);
 
+  // FIX: Sahi Header format taaki 'No API key' error na aaye
   const fetchDatabaseData = async () => {
     try {
       setLoading(true);
-      const headers = {
+      const myHeaders = {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
         'Content-Type': 'application/json'
       };
 
-      const resProjects = await fetch(`${SUPABASE_URL}/rest/v1/projects?select=*&order=id.desc`, { headers });
+      const resProjects = await fetch(`${SUPABASE_URL}/rest/v1/projects?select=*&order=id.desc`, { 
+        method: 'GET',
+        headers: myHeaders 
+      });
       const projects = await resProjects.json();
-      // FIX: Array check add kiya
       setProjectsData(Array.isArray(projects) ? projects : []);
 
-      const resServices = await fetch(`${SUPABASE_URL}/rest/v1/services?select=*&order=id.asc`, { headers });
+      const resServices = await fetch(`${SUPABASE_URL}/rest/v1/services?select=*&order=id.asc`, { 
+        method: 'GET',
+        headers: myHeaders 
+      });
       const services = await resServices.json();
       
-      // FIX: Array check add kiya
       const servicesArray = Array.isArray(services) ? services : [];
       const formattedServices = servicesArray.map(s => ({
         id: s.id,
